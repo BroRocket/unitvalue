@@ -2,7 +2,7 @@
 name = "dimensioned-values"
 version = "0.0.1"
 authors = [
-  { name="Brody Howard", email="brody.howard@mail.utoronto.ca" },
+  { name="Brody Howard", email="" },
 ]
 description = "A small package for using units in Python. allows for computation with dimensioned values and conversion of dimensioned values"
 readme = "README.md"
