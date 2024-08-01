@@ -1,3 +1,17 @@
+Metadata-Version: 2.1
+Name: dimensioned-values
+Version: 0.0.1
+Summary: A small package for using units in Python. allows for computation with dimensioned values and conversion of dimensioned values
+Author-email: Brody Howard <brody.howard@mail.utoronto.ca>
+Project-URL: Homepage, https://github.com/BroRocket/unitvalue/
+Project-URL: Issues, https://github.com/BroRocket/unitvalue/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 # Unit/Dimensioned Quantities Module
 
 ## Overview
@@ -14,9 +28,7 @@ The **unitvalue** Module is a Python library designed to handle various unit con
 
 ## Installation
 
-```Powershell
-pip install dimensioned-values
-```
+To be done
 
 ## Usage
 
