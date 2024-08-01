@@ -36,3 +36,5 @@ if __name__ == "__main__":
     c = b**-5
     print(a, b, c)
     print(a**-0.5)
+
+    print(v1.to("km/h"))

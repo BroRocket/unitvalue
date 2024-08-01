@@ -25,7 +25,7 @@ pip install dimensioned-values
 To create a `UnitValue` object, use the `create_dimensioned_quantity` function:
 
 ```python
-from units import create_dimensioned_quantity
+from unitvalue import create_dimensioned_quantity
 
 # Create a UnitValue object with a specified unit and value
 distance = create_dimensioned_quantity('meter', 100)
@@ -35,14 +35,14 @@ distance = UnitValue("METRIC", "DISTANCE", "m", 100)
 
 ### Converting Units
 
-You can convert the unit of a `UnitValue` object using the `convert_to` method:
+You can convert the unit of a `UnitValue` object using the `to` method:
 
 ```python
 # Convert the distance to kilometers
-distance.convert_to(change_system= False, unit='kilometer')
+distance.to(unit='kilometer')
 print(distance)  # Output: 0.1 kilometer
 
-# Convert to base metric unit
+# Convert to base metric unit (Useful for Scinetifc calculations)
 distance.convert_base_metric()
 print(distance)
 ```
@@ -52,7 +52,7 @@ print(distance)
 `UnitValue` objects support arithmetic operations, maintaining unit consistency (The units do not even need to be in the same system or magnitude for you to perform arithmetic on them as the module will handle this). It is important to knwo all arithmetic operations return a value in the base metric units:
 
 ```python
-from units import create_dimensioned_quantity
+from unitvalue import create_dimensioned_quantity
 
 length1 = create_dimensioned_quantity('meter', 50)
 length2 = create_dimensioned_quantity('meter', 30)

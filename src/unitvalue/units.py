@@ -646,12 +646,11 @@ class UnitValue:
             self.__unit = "k"
         return self
     
-    def convert_to(self, change_system: bool, unit: str = ""):
+    def to(self, unit:str):
         """
         Convert the current value to a new unit.
 
         Args:
-            new_system (bool): Whether to change the measurement system.
             unit (str): The unit to convert to.
         
         Returns:
@@ -663,21 +662,23 @@ class UnitValue:
         if self.__system is None:
             raise Exception(f"Invalid unit {self.__unit}: this unit is not currently supported by the module")
         elif self.__dimension == "TEMPERATURE":
-            self.__convert_temp(change_system, unit)
-        elif change_system is True:
-            self.__convert_system(unit)
-        elif unit:
-            self.__convert_unit(unit)
+            if unit in UnitValue.UNITS[self.__system][self.__dimension]:
+                self.__convert_temp(False, unit)
+            else:
+                self.__convert_temp(True, unit) 
         else:
-            raise Exception("No conversion performed as change_system was false and unit was empty")
+            if unit in UnitValue.UNITS[self.__system][self.__dimension]:
+                self.__convert_unit(unit)
+            else:
+                self.__convert_system(unit)
         return self
-    
+
     @property
     def get_unit(self) -> str:
         return self.__unit
 
     @property
-    def get_measurement_type(self) -> str:
+    def get_dimension(self) -> str:
         return self.__dimension
 
     @property
@@ -707,4 +708,3 @@ def create_dimensioned_quantity(unit: str, value: float=0) -> UnitValue:
                 return UnitValue(system, dimension, unit, value)
     Warning("Creating unit not recongized by module")
     return UnitValue(None, None, unit, value)
-    
