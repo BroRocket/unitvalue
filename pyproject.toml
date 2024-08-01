@@ -1,10 +1,10 @@
 [project]
-name = "example_package_YOUR_USERNAME_HERE"
+name = "unitvalue"
 version = "0.0.1"
 authors = [
-  { name="Example Author", email="author@example.com" },
+  { name="Brody Howard", email="brody.howard@mail.utoronto.ca" },
 ]
-description = "A small example package"
+description = "A small package for using units in Python. allows for computation with dimensioned values and conversion of dimensioned values"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -14,5 +14,5 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
-Issues = "https://github.com/pypa/sampleproject/issues"
+Homepage = "https://github.com/BroRocket/unitvalue/"
+Issues = "https://github.com/BroRocket/unitvalue/issues"
