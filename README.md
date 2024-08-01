@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Unit Converter Module is a Python library designed to handle various unit conversions. It allows for the creation of `UnitValue` objects, which can represent values with different units and convert between them.
+The **unitvalue** Module is a Python library designed to handle various unit conversions. It allows for the creation of `UnitValue` objects, which can represent values with different units and convert between them.
 
 ## Features
 
@@ -27,21 +27,27 @@ from units import create_dimensioned_quantity
 
 # Create a UnitValue object with a specified unit and value
 distance = create_dimensioned_quantity('meter', 100)
+# Or initialize instance yourself
+distance = UnitValue("METRIC", "DISTANCE", "m", 100)
 ```
 
 ### Converting Units
 
-You can convert the unit of a `UnitValue` object using the `convert` method:
+You can convert the unit of a `UnitValue` object using the `convert_to` method:
 
 ```python
 # Convert the distance to kilometers
-distance.convert(unit='kilometer')
+distance.convert_to(change_system= False, unit='kilometer')
 print(distance)  # Output: 0.1 kilometer
+
+# Convert to base metric unit
+distance.convert_base_metric()
+print(distance)
 ```
 
 ### Arithmetic Operations
 
-`UnitValue` objects support arithmetic operations, maintaining unit consistency:
+`UnitValue` objects support arithmetic operations, maintaining unit consistency (The units do not even need to be in the same system or magnitude for you to perform arithmetic on them as the module will handle this). It is important to knwo all arithmetic operations return a value in the base metric units:
 
 ```python
 from units import create_dimensioned_quantity
@@ -51,19 +57,31 @@ length2 = create_dimensioned_quantity('meter', 30)
 
 # Addition
 total_length = length1 + length2
-print(total_length)  # Output: 80 meter
+print(total_length)  # Output: 80 m
 
 # Subtraction
 remaining_length = length1 - length2
-print(remaining_length)  # Output: 20 meter
+print(remaining_length)  # Output: 20 m
 
 # Multiplication by a scalar
 double_length = length1 * 2
-print(double_length)  # Output: 100 meter
+print(double_length)  # Output: 100 m
 
 # Division by a scalar
 half_length = length1 / 2
-print(half_length)  # Output: 25 meter
+print(half_length)  # Output: 25 m
+
+# Multiplication between UnitValue Objects
+area = lenght1 * length2
+print(area) # Output: 150 m^2
+
+# Divivsion between UnitValue Objects
+l = area / length2
+print(l) # Output: 50 m
+
+# UnitValue object to the power
+volume = lenght1**3
+print(volume)  # Output: 125000 m^3
 ```
 
 ### Accessing Unit Information
@@ -74,17 +92,6 @@ You can access the unit, measurement type, and system of a `UnitValue` object us
 print(distance.get_unit)  # Output: 'kilometer'
 print(distance.get_measurement_type)  # Output: 'LENGTH'
 print(distance.get_system)  # Output: 'METRIC'
-```
-
-## Error Handling
-
-The module includes error handling for unsupported units and invalid operations:
-
-```python
-try:
-    invalid_distance = create_dimensioned_quantity('unknown_unit', 100)
-except Exception as e:
-    print(e)  # Output: Invalid unit unknown_unit: this unit is not currently supported by the module
 ```
 
 ## Contributing
