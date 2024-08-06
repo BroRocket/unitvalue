@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: dimensioned-values
-Version: 0.0.2
+Version: 0.0.3
 Summary: A small package for using units in Python. allows for computation with dimensioned values and conversion of dimensioned values
 Author-email: Brody Howard <brody.howard@mail.utoronto.ca>
 Project-URL: Homepage, https://github.com/BroRocket/unitvalue/
@@ -108,6 +108,13 @@ You can access the unit, measurement type, and system of a `UnitValue` object us
 print(distance.get_unit)  # Output: 'kilometer'
 print(distance.get_measurement_type)  # Output: 'LENGTH'
 print(distance.get_system)  # Output: 'METRIC'
+```
+
+You can access the vlaue of the dimensioned quantity using the property or the method:
+
+```python
+print(distance.value)
+print(distance())
 ```
 
 ## Contributing

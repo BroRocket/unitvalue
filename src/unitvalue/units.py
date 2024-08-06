@@ -668,6 +668,11 @@ class UnitValue:
         Raises:
             Exception: If the unit is not recognized or conversion is not possible.
         """
+        for u, spellings in UnitValue.SPELLING.items():
+            if unit in spellings:
+                unit = u
+                break
+
         if self.__system is None:
             raise Exception(f"Invalid unit {self.__unit}: this unit is not currently supported by the module")
         elif self.__dimension == "TEMPERATURE":

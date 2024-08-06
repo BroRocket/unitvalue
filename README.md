@@ -96,6 +96,13 @@ print(distance.get_measurement_type)  # Output: 'LENGTH'
 print(distance.get_system)  # Output: 'METRIC'
 ```
 
+You can access the vlaue of the dimensioned quantity using the property or the method:
+
+```python
+print(distance.value)
+print(distance())
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue on the GitHub repository.
