@@ -1,4 +1,4 @@
-from ..src.unitvalue import *
+from unitvalue import *
 
 # Examples of use
 if __name__ == "__main__":
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     t = create_dimensioned_quantity("s", 2)
     frequency = t**-1
     f = 1 / t
-    print(frequency, f.convert_to(False, "Hz"))
+    print(frequency, f.to("Hz"))
 
     m3 = create_dimensioned_quantity("kg", 10)
     print((2*m3 - m2) / m2)
