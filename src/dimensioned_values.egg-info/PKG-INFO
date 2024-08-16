@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: dimensioned-values
-Version: 0.0.3
-Summary: A small package for using units in Python. allows for computation with dimensioned values and conversion of dimensioned values
+Version: 0.0.4
+Summary: A small package for using units in Python. allows for computation with dimensioned qautities and allows you to convert between different units
 Author-email: Brody Howard <brody.howard@mail.utoronto.ca>
 Project-URL: Homepage, https://github.com/BroRocket/unitvalue/
 Project-URL: Issues, https://github.com/BroRocket/unitvalue/issues
