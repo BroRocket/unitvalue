@@ -1,10 +1,10 @@
 [project]
 name = "dimensioned-values"
-version = "0.0.4"
+version = "0.1.1"
 authors = [
   { name="Brody Howard", email="" },
 ]
-description = "A small package for using units in Python. allows for computation with dimensioned qautities and allows you to convert between different units"
+description = "A small package for using units in Python. Allows for computation with dimensioned qauntities and allows you to convert between different units. Do anything you would do with regular floats or integers in Python except now with units. I think you'll find this implementation more elegant then most other unit packages."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

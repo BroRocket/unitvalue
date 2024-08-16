@@ -196,45 +196,43 @@ class UnitValue:
                 opp *= -1
                 i += 1
                 continue
-            if unit_str[i] == "k":
-                if len(unit_str) > 1:
-                    key = unit_str[i:i+2]
-                    if key not in units:
-                        units[key] = 0
-                    units[key] += opp
-                    i += 1
-            elif unit_str[i] == "^":
-                if i > 1 and unit_str[i-2] == "k":
-                    if i + 2 < len(unit_str) and unit_str[i+2] == ".":
-                        key = unit_str[i-1]
-                        if key not in units: units[key] = 0
-                        units[key] += opp * float(unit_str[i+1:i+4]) - opp 
-                        i += 4
-                        continue
-                    key = unit_str[i-2:i]
-                    if key not in units:
-                        units[key] = 0
-                    units[key] += opp * int(unit_str[i+1]) - opp
-                    i += 2
-                    continue
-                elif i + 2 < len(unit_str) and unit_str[i+2] == ".":
-                    key = unit_str[i-1]
-                    if key not in units: units[key] = 0
-                    units[key] += opp * float(unit_str[i+1:i+4]) - opp 
-                    i += 4
-                    continue
-                key = unit_str[i-1]
-                if key not in units:
-                    units[key] = 0
-                units[key] += opp * int(unit_str[i+1]) - opp
-                i += 1
+            elif unit_str[i] == "k":
+                if i + 1 < len(unit_str):
+                    if unit_str[i+1] == "g":
+                        key = unit_str[i:i+2]
+                        i += 1
+                    else:
+                        key = unit_str[i] 
+                else:
+                    key = unit_str[i]
             else:
                 key = unit_str[i]
-                if key not in units:
-                    units[key] = 0
+
+            if key not in units:
+                units[key] = 0 
+
+            if i + 1 < len(unit_str) and unit_str[i+1] == "^":
+                index = 2
+                is_float = False
+                for j in range(i+2, len(unit_str)):
+                    if unit_str[j] == ".":
+                        is_float = True
+                        index += 1
+                    else:
+                        try:
+                            int(unit_str[j])
+                            index += 1
+                        except:
+                            break
+                if is_float:
+                    units[key] += opp * float(unit_str[i+2:i+index])
+                else:
+                    units[key] += opp * int(unit_str[i+2:i+index])
+                i += index
+            else:
                 units[key] += opp
-            i += 1
-    
+                i += 1
+
     def __mul__(self, m):
         """
         Multiplies UnitValue object by another Unitvlue or dimensionless value.
@@ -380,7 +378,7 @@ class UnitValue:
         """
         Raises UnitValue object to the power of a float or interger.
         """
-        if isinstance(p, int) or p % 0.5 == 0:
+        if isinstance(p, (int, float)):
             if p == 1:
                 return self
             
@@ -408,11 +406,8 @@ class UnitValue:
                     denom += f"{key}^{-1*units[key]}" if units[key] % 1 != 0 else f"{key}^{-1*int(units[key])}"
 
             new_unit = numer + denom if denom != "/" else numer       
-            return UnitValue(None, None, new_unit, self.value**p)
-        
-        elif isinstance(p, float):
-            warnings.warn("Performing non dimensional power on UnitValue, ignoring dimension change")
-            return UnitValue(self.__system, self.__dimension, self.__unit, self.value ** p)
+            return UnitValue(None, None, new_unit, self.value ** p)
+
         else:
             raise TypeError(f"Cannot raise UnitValue to the power of type: {type(p)}")
 
@@ -422,7 +417,9 @@ class UnitValue:
         """
         if isinstance(a, UnitValue):
             if self.__dimension != a.__dimension:
-                raise TypeError(f"Cannot add type: UnitValue and type: {type(a)}")
+                if self.__unit != a.__unit:
+                    raise TypeError(f"Cannot add unit {self.__unit} and {a.__unit}")
+                return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value)
             self.convert_base_metric()
             a.convert_base_metric()
             return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value)
@@ -439,7 +436,9 @@ class UnitValue:
         """
         if isinstance(s, UnitValue):
             if self.__dimension != s.__dimension:
-                raise TypeError(f"Cannot subtract type: UnitValue and type: {type(s)}")
+                if self.__unit != s.__unit:
+                    raise TypeError(f"Cannot subtract unit {self.__unit} and {s.__unit}")
+                return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value)
             self.convert_base_metric()
             s.convert_base_metric()
             return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value)
@@ -453,7 +452,9 @@ class UnitValue:
         """
         if isinstance(s, UnitValue):
             if self.__dimension != s.__dimension:
-                raise TypeError(f"Cannot subtract type: UnitValue and type: {type(s)}")
+                if self.__unit != s.__unit:
+                    raise TypeError(f"Cannot subtract unit {self.__unit} and {s.__unit}")
+                return UnitValue(self.__system, self.__dimension, self.__unit, s.value - self.value)
             self.convert_base_metric()
             s.convert_base_metric()
             return UnitValue(self.__system, self.__dimension, self.__unit, s.value - self.value)
@@ -462,6 +463,9 @@ class UnitValue:
             return UnitValue(self.__system, self.__dimension, self.__unit, s - self.value) 
 
     def __abs__(self):
+        """
+        Returns a Unitvalue object with the absolute value of the original UnitValue value.
+        """
         return UnitValue(self.__system, self.__dimension, self.__unit, abs(self.value))         
 
     def __eq__(self, other) -> bool:
@@ -528,6 +532,9 @@ class UnitValue:
         return int(self.value)
     
     def __round__(self, ndigits: int=0):
+        """
+        Rounds UnitValue to ndigts returns rounded Unitvale
+        """
         self.value = round(self.value, ndigits)
         return self
     
@@ -699,4 +706,3 @@ def create_dimensioned_quantity(unit: str, value: float=0) -> UnitValue:
                 return UnitValue(system, dimension, unit, value)
     warnings.warn("Creating unit not recongized by module") 
     return UnitValue(None, None, unit, value)
-
