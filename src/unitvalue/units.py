@@ -773,3 +773,4 @@ class UnitValue:
     def get_system(self) -> str:
         return self.__system
     
+print(UnitValue.available_units())

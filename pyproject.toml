@@ -1,6 +1,6 @@
 [project]
-name = "UnitValue"
-version = "0.1.0"
+name = "UnitValues"
+version = "0.1.1"
 authors = [
   { name="Brody Howard", email="" },
 ]
