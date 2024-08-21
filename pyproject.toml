@@ -1,6 +1,6 @@
 [project]
-name = "dimensioned-values"
-version = "0.1.1"
+name = "UnitValue"
+version = "0.1.0"
 authors = [
   { name="Brody Howard", email="" },
 ]

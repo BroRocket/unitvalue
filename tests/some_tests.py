@@ -1,5 +1,5 @@
 from unitvalue import *
-
+'''OUTDATED'''
 # Examples of use
 if __name__ == "__main__":
     d = UnitValue("METRIC", "DISTANCE", "m", 5) # this and the line belwo are equivalent, just the top one requires more manual knowledge of path to unit
