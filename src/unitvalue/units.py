@@ -4,6 +4,9 @@ The two supported systems currently are Imperial and Metric.
 It currently suports numbers of the unit type 'DISTANCE', 'PRESSURE', 'MASS', 'VELOCITY', 'DENSITY', 'VOLUME', "AREA", "TEMPERATURE", "MASS FLOW RATE", "ENERGY".
 Typically used units are supported and more can be added upon request.
 '''
+'''
+AUTHOR: Brody Howard
+'''
 import warnings
 
 class UnitValue: 
@@ -48,7 +51,7 @@ class UnitValue:
                          "DENSITY": {"kg/m^3": 1, "t/m^3": 1000, "g/m^3": 0.001},
                          "VOLUME": {"m^3": 1, "L": 0.001, "cm^3": 0.000001, "mL": 0.000001, "mm^3": 0.000000001},
                          "AREA": {"m^2": 1, "km^2": 1000000, "cm^2": 0.0001, "mm^2": 0.000001},
-                         "TEMPERATURE": {"k": None, "c": None},
+                         "TEMPERATURE": {"K": None, "c": None},
                          "MASS FLOW RATE": {"kg/s": 1, "t/s": 1000, "kg/min": 0.0166667, "g/s": 0.001},
                          "ENERGY": {"kgm^2/s^2": 1, "MJ": 1000000, "kJ": 1000, "Nm": 1, "J": 1, "eV": 1.602177e-19},
                          "TIME": {"s": 1, "h": 3600, "min": 60, "ms": 0.001},
@@ -197,14 +200,8 @@ class UnitValue:
                 i += 1
                 continue
             elif unit_str[i] == "k":
-                if i + 1 < len(unit_str):
-                    if unit_str[i+1] == "g":
-                        key = unit_str[i:i+2]
-                        i += 1
-                    else:
-                        key = unit_str[i] 
-                else:
-                    key = unit_str[i]
+                key = unit_str[i:i+2]
+                i += 1      
             else:
                 key = unit_str[i]
 
@@ -574,7 +571,7 @@ class UnitValue:
         return UnitValue(self.__system, self.__dimension, self.__unit, self.value)
     
     def __temperature_handler(self, old_unit: str, new_unit: str): # add Rankine
-        if new_unit == "k":
+        if new_unit == "K":
             if old_unit == "c":
                 self.value += 273.15
             elif old_unit == "f":
@@ -582,14 +579,14 @@ class UnitValue:
             elif old_unit == "R":
                 self.value *= 5/9
         elif new_unit == "c":
-            if old_unit == "k":
+            if old_unit == "K":
                 self.value -= 273.15
             elif old_unit == "f":
                 self.value = (self.value - 32) * (5/9)
             elif old_unit == "R":
                 self.value = (self.value - 491.67) * (5/9)
         elif new_unit == "f":
-            if old_unit == "k":
+            if old_unit == "K":
                 self.value = ((self.value -273.15) / (5/9)) + 32
             elif old_unit == "c":
                 self.value = (self.value / (5/9)) + 32 
@@ -600,7 +597,7 @@ class UnitValue:
                 self.value = self.value * (9/5) + 491.67
             elif old_unit == "f":
                 self.value += 459.67
-            elif old_unit == "k":
+            elif old_unit == "K":
                 self.value *= 1.8
         
     def __convert_temp(self, change_system: bool, unit: str=""):
@@ -634,9 +631,9 @@ class UnitValue:
             self.__system = "METRIC"
             self.__unit = list(UnitValue.UNITS[self.__system][self.__dimension].keys())[0]
         else:
-            self.__temperature_handler(self.__unit, "k")
+            self.__temperature_handler(self.__unit, "K")
             self.__system = "METRIC"
-            self.__unit = "k"
+            self.__unit = "K"
         return self
     
     def to(self, unit:str):
