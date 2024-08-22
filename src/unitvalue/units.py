@@ -647,6 +647,8 @@ class UnitValue:
                     inputs[1][ind] = ufunc(inputs[0], element, **kwargs)
                 return inputs[1]
             else:
+                if isinstance(inputs[0], (np.float64, np.int64)):
+                    inputs = [float(inputs[0]), inputs[1]]
                 if ufunc == np.add:
                     return inputs[0] + inputs[1]
                 elif ufunc == np.subtract:
