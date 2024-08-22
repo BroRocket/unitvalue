@@ -1,6 +1,6 @@
 # UnitValues Package
 ## Introduction
-The UnitValue package is designed to allow easy manipulation and conversion of numerical values associated with units. It currently supports both Imperial and Metric systems and includes commonly used units, with the flexibility to add more units as needed. It works with numpy as well.
+The UnitValue package is designed to allow easy manipulation and conversion of numerical values associated with units. It currently supports both Imperial and Metric systems and includes commonly used units, with the flexibility to add more units as needed. It works with numpy as well, empowering you to use units in your numpy arrays and funciton calls.
 
 This package is ideal for applications that require precise unit conversions and tracking of units alongside numerical values.
 
