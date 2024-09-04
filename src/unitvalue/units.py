@@ -6,7 +6,7 @@ Typically used units are supported and more can be added upon request or in your
 import warnings
 import numpy as np
 
-class UnitValue: 
+class UnitValue: # add specific heat
     """
     Represents a value with dimension/units.
 
@@ -26,7 +26,7 @@ class UnitValue:
                            "AREA": {"in^2": 0.00064516, "mi^2": 2590000, "yd^2": 0.836127, "ft^2": 0.092903},
                            "TEMPERATURE": {"f": None, "R":None},
                            "MASS FLOW RATE": {"lb/s": 0.453592, "ton/s": 907.1847, "st/s": 6.35029, "oz": 0.0283495, "lb/min": 0.00755987},
-                           "ENERGY": {"ftlb": 1.35582, "kcal": 4184, "cal": 4.184},
+                           "ENERGY": {"BTU": 1055.05585, "ftlb": 1.35582, "kcal": 4184, "cal": 4.184},
                            "TIME": {"s": 1, "h": 3600, "min": 60, "ms": 0.001},
                            "MOMENTUM": {"slugft/s": 4.449670915354, "lbft/s": 0.1383}, 
                            "FREQUENCY": {"rpm": 0.016667},
@@ -35,10 +35,11 @@ class UnitValue:
                            "ENERGY PER UNIT MASS": {"ft^2/s^2": 0.09290304}, 
                            "MASS PER UNIT LENGTH": {"lb/ft": 1.48816, "oz/in": 1.11612},
                            "MASS PER AREA": {"lb/ft^2": 4.88243},
-                           "VOLUMETRIC FLOW RATE": {"ft^3/s": 0.0283168, "gal/s": 0.00378541},
+                           "VOLUMETRIC FLOW RATE": {"ft^3/s": 0.0283168, "gal/s": 0.00378541, "ft^3/min": 0.000471947},
                            "DYNAMIC VISCOCITY": {"lb/fts": 1.488163943568},
                            "KINEMATIC VISCOCITY": {"ft^2/s": 0.092903},
-                           "MASS FLUX": {"lb/ft^2s": 4.88243} 
+                           "MASS FLUX": {"lb/ft^2s": 4.88243},
+                           "SPECIFIC HEAT": {"BTU/lbf": 4186.8000000087}
                          }, 
              "METRIC": {
                          "DISTANCE": {"m": 1, "km": 1000, "cm": 0.01, "mm": 0.001}, 
@@ -62,11 +63,12 @@ class UnitValue:
                          "VOLUMETRIC FLOW RATE": {"m^3/s": 1, "cm^3/s": 0.000001},
                          "DYNAMIC VISCOCITY": {"kg/ms": 1, "g/cms":0.1},
                          "KINEMATIC VISCOCITY": {"m^2/s": 1, "cm^2/s": 0.0001},
-                         "MASS FLUX": {"kg/m^2s": 1}
+                         "MASS FLUX": {"kg/m^2s": 1},
+                         "SPECIFIC HEAT": {"m^2/s^2K": 1, "J/kgK": 1, "J/kgc": 1}
                         }
             }
     
-    SPELLING_MAP = {'mtr': 'm', 'meters': 'm', 'mtr.': 'm', 'metres': 'm', 'metre': 'm', 'm ': 'm', 'meter': 'm', 'kilometer': 'km', 'kilometre': 'km', 'kilo meter': 'km', 'k meter': 'km', 'klometer': 'km', 'km ': 'km', 'kmeter': 'km', 'kmtr': 'km', 'centemeter': 'cm', 'centimetre': 'cm', 'cn': 'cm', 'c meter': 'cm', 'cm ': 'cm', 'centi meter': 'cm', 'centimeter': 'cm', 'cmeter': 'cm', 'cmtr': 'cm', 'mmeter': 'mm', 'millimeter': 'mm', 'milimeter': 'mm', 'milli meter': 'mm', 'millimetre': 'mm', 'm meter': 'mm', 'mn': 'mm', 'mmtr': 'mm', 'mm ': 'mm', 'g ': 'g', 'gramme': 'g', 'grm': 'g', 'gms': 'g', 'gram': 'g', 'gm': 'g', 'gramm': 'g', 'gram ': 'g', 'kilograms': 'kg', 'k gram': 'kg', 'kilogramme': 'kg', 'kilogram ': 'kg', 'kilogramme ': 'kg', 'kilogrammes': 'kg', 'kg ': 'kg', 'kilogram': 'kg', 'kilo gram': 'kg', 'kgrm': 'kg', 'liters': 'L', 'l': 'L', 'litres': 'L', 'ltrs': 'L', 'liter': 'L', 'litre ': 'L', 'litre': 'L', 'liters ': 'L', 'liter ': 'L', 'litter': 'L', 'ltr': 'L', 'ml': 'mL', 'milliliter': 'mL', 'mlitres': 'mL', 'millilitre': 'mL', 'milli litre': 'mL', 'mliters': 'mL', 'milli liter': 'mL', 'mltr': 'mL', 'sec': 's', 'seconds': 's', 'sedonds': 's', 'sconds': 's', 'second': 's', 'secs': 's', 'secnd': 's', 'minute': 'min', 'minuts': 'min', 'mins': 'min', 'minutes': 'min', 'min': 'min', 'minut': 'min', 'hours': 'h', 'hr': 'h', 'howr': 'h', 'houer': 'h', 'hour': 'h', 'hou': 'h', 'hrs': 'h', 'square meters': 'm^2', 'square meter': 'm^2', 'sqr meter': 'm^2', 'square metre': 'm^2', 'sq meter': 'm^2', 'sqmetre': 'm^2', 'sq metres': 'm^2', 'sqm': 'm^2', 'cube meter': 'm^3', 'cu meter': 'm^3', 'cbm': 'm^3', 'cubic meters': 'm^3', 'cubic metre': 'm^3', 'cubic meter': 'm^3', 'cu m': 'm^3', 'degree centigrade': 'c', 'degree celsius': 'c', 'celcius': 'c', 'deg celsius': 'c', 'celsius degree': 'c', 'celsus': 'c', 'celsius': 'c', 'deg c': 'c', 'fahrenheit degree': 'f', 'deg f': 'f', 'deg fahrenheit': 'f', 'fahrenhiet': 'f', 'degree fahrenheit': 'f', 'farhenheit': 'f', 'force': 'kgm/s^2', 'Newton': 'kgm/s^2', 'newtn': 'kgm/s^2', 'nwton': 'kgm/s^2', 'nwt': 'kgm/s^2', 'newton': 'kgm/s^2', 'joule': 'kgm^2/s^2', 'energy': 'kgm^2/s^2', 'juole': 'kgm^2/s^2', 'jl': 'kgm^2/s^2', 'joules': 'kgm^2/s^2', 'juul': 'kgm^2/s^2', 'inck': 'in', 'inche': 'in', 'inch': 'in', 'inc': 'in', 'inch ': 'in', 'inchh': 'in', 'foot': 'ft', 'foott': 'ft', 'fot': 'ft', 'foor': 'ft', 'foot ': 'ft', 'feet': 'ft', 'yardd': 'yd', 'yad': 'yd', 'yarrd': 'yd', 'yard ': 'yd', 'yard': 'yd', 'mille': 'mi', 'mile ': 'mi', 'milee': 'mi', 'mil': 'mi', 'mile': 'mi', 'pounds': 'lb', 'pounnd': 'lb', 'pound ': 'lb', 'pound': 'lb', 'lbs': 'lb', 'poundd': 'lb', 'galln': 'gal', 'gllon': 'gal', 'gallon': 'gal', 'galllon': 'gal', 'gallon ': 'gal', 'ounze': 'oz', 'ouncce': 'oz', 'ounce ': 'oz', 'ozs': 'oz', 'ounce': 'oz', 'ounc': 'oz', 'ounc ': 'oz', 'stn': 'st', 'stone ': 'st', 'sts': 'st', 'stone': 'st', 'st ': 'st', 'ft2': 'ft^2', 'square foot': 'ft^2', 'sqft': 'ft^2', 'square feet': 'ft^2', 'sq foot': 'ft^2', 'ft3': 'ft^3', 'cft': 'ft^3', 'cubic foot': 'ft^3', 'cu ft': 'ft^3', 'cubic feet': 'ft^3'}
+    SPELLING_MAP = {'mtr': 'm', 'meters': 'm', 'mtr.': 'm', 'metres': 'm', 'metre': 'm', 'm ': 'm', 'meter': 'm', 'kilometer': 'km', 'kilometre': 'km', 'kilo meter': 'km', 'k meter': 'km', 'klometer': 'km', 'km ': 'km', 'kmeter': 'km', 'kmtr': 'km', 'centemeter': 'cm', 'centimetre': 'cm', 'cn': 'cm', 'c meter': 'cm', 'cm ': 'cm', 'centi meter': 'cm', 'centimeter': 'cm', 'cmeter': 'cm', 'cmtr': 'cm', 'mmeter': 'mm', 'millimeter': 'mm', 'milimeter': 'mm', 'milli meter': 'mm', 'millimetre': 'mm', 'm meter': 'mm', 'mn': 'mm', 'mmtr': 'mm', 'mm ': 'mm', 'g ': 'g', 'gramme': 'g', 'grm': 'g', 'gms': 'g', 'gram': 'g', 'gm': 'g', 'gramm': 'g', 'gram ': 'g', 'kilograms': 'kg', 'k gram': 'kg', 'kilogramme': 'kg', 'kilogram ': 'kg', 'kilogramme ': 'kg', 'kilogrammes': 'kg', 'kg ': 'kg', 'kilogram': 'kg', 'kilo gram': 'kg', 'kgrm': 'kg', 'liters': 'L', 'l': 'L', 'litres': 'L', 'ltrs': 'L', 'liter': 'L', 'litre ': 'L', 'litre': 'L', 'liters ': 'L', 'liter ': 'L', 'litter': 'L', 'ltr': 'L', 'ml': 'mL', 'milliliter': 'mL', 'mlitres': 'mL', 'millilitre': 'mL', 'milli litre': 'mL', 'mliters': 'mL', 'milli liter': 'mL', 'mltr': 'mL', 'sec': 's', 'seconds': 's', 'sedonds': 's', 'sconds': 's', 'second': 's', 'secs': 's', 'secnd': 's', 'minute': 'min', 'minuts': 'min', 'mins': 'min', 'minutes': 'min', 'min': 'min', 'minut': 'min', 'hours': 'h', 'hr': 'h', 'howr': 'h', 'houer': 'h', 'hour': 'h', 'hou': 'h', 'hrs': 'h', 'square meters': 'm^2', 'square meter': 'm^2', 'sqr meter': 'm^2', 'square metre': 'm^2', 'sq meter': 'm^2', 'sqmetre': 'm^2', 'sq metres': 'm^2', 'sqm': 'm^2', 'cube meter': 'm^3', 'cu meter': 'm^3', 'cbm': 'm^3', 'cubic meters': 'm^3', 'cubic metre': 'm^3', 'cubic meter': 'm^3', 'cu m': 'm^3', 'C': 'c','degree centigrade': 'c', 'degree celsius': 'c', 'celcius': 'c', 'deg celsius': 'c', 'celsius degree': 'c', 'celsus': 'c', 'celsius': 'c', 'deg c': 'c', 'fahrenheit degree': 'f', 'deg f': 'f', 'deg fahrenheit': 'f', 'fahrenhiet': 'f', 'degree fahrenheit': 'f', 'farhenheit': 'f', 'force': 'kgm/s^2', 'Newton': 'kgm/s^2', 'newtn': 'kgm/s^2', 'nwton': 'kgm/s^2', 'nwt': 'kgm/s^2', 'newton': 'kgm/s^2', 'joule': 'kgm^2/s^2', 'energy': 'kgm^2/s^2', 'juole': 'kgm^2/s^2', 'jl': 'kgm^2/s^2', 'joules': 'kgm^2/s^2', 'juul': 'kgm^2/s^2', 'inck': 'in', 'inche': 'in', 'inch': 'in', 'inc': 'in', 'inch ': 'in', 'inchh': 'in', 'foot': 'ft', 'foott': 'ft', 'fot': 'ft', 'foor': 'ft', 'foot ': 'ft', 'feet': 'ft', 'yardd': 'yd', 'yad': 'yd', 'yarrd': 'yd', 'yard ': 'yd', 'yard': 'yd', 'mille': 'mi', 'mile ': 'mi', 'milee': 'mi', 'mil': 'mi', 'mile': 'mi', 'pounds': 'lb', 'pounnd': 'lb', 'pound ': 'lb', 'pound': 'lb', 'lbs': 'lb', 'poundd': 'lb', 'galln': 'gal', 'gllon': 'gal', 'gallon': 'gal', 'galllon': 'gal', 'gallon ': 'gal', 'ounze': 'oz', 'ouncce': 'oz', 'ounce ': 'oz', 'ozs': 'oz', 'ounce': 'oz', 'ounc': 'oz', 'ounc ': 'oz', 'stn': 'st', 'stone ': 'st', 'sts': 'st', 'stone': 'st', 'st ': 'st', 'ft2': 'ft^2', 'square foot': 'ft^2', 'sqft': 'ft^2', 'square feet': 'ft^2', 'sq foot': 'ft^2', 'ft3': 'ft^3', 'cft': 'ft^3', 'cubic foot': 'ft^3', 'cu ft': 'ft^3', 'cubic feet': 'ft^3'}
     
     @classmethod
     def add_custom_unit(cls, system: str, dimension:str, unit:str, conversion_factor: float) -> None:
@@ -558,8 +560,8 @@ class UnitValue:
         Checks if UnitValue object is equal to other.
         """
         if isinstance(other, UnitValue):
-            a = self.__cpy().convert_base_metric()
-            b = other.__cpy().convert_base_metric()
+            a = self.copy().convert_base_metric()
+            b = other.copy().convert_base_metric()
             return a.value == b.value and a.__unit == b.__unit
         elif isinstance(other, (int, float)):
             return self.value == other
@@ -567,8 +569,8 @@ class UnitValue:
 
     def __ne__(self, other) -> bool:
         if isinstance(other, UnitValue):
-            a = self.__cpy().convert_base_metric()
-            b = other.__cpy().convert_base_metric()
+            a = self.copy().convert_base_metric()
+            b = other.copy().convert_base_metric()
             return a.value != b.value and a.__unit != b.__unit
         elif isinstance(other, (int, float)):
             return self.value != other
@@ -576,8 +578,8 @@ class UnitValue:
     
     def __lt__(self, other) -> bool:
         if isinstance(other, UnitValue):
-            a = self.__cpy().convert_base_metric()
-            b = other.__cpy().convert_base_metric()
+            a = self.copy().convert_base_metric()
+            b = other.copy().convert_base_metric()
             return a.value < b.value
         elif isinstance(other, (int, float)):
             return self.value < other
@@ -585,8 +587,8 @@ class UnitValue:
     
     def __le__(self, other) -> bool:
         if isinstance(other, UnitValue):
-            a = self.__cpy().convert_base_metric()
-            b = other.__cpy().convert_base_metric()
+            a = self.copy().convert_base_metric()
+            b = other.copy().convert_base_metric()
             return a.value <= b.value
         elif isinstance(other, (int, float)):
             return self.value <= other
@@ -594,8 +596,8 @@ class UnitValue:
     
     def __gt__(self, other) -> bool:
         if isinstance(other, UnitValue):
-            a = self.__cpy().convert_base_metric()
-            b = other.__cpy().convert_base_metric()
+            a = self.copy().convert_base_metric()
+            b = other.copy().convert_base_metric()
             return a.value > b.value
         elif isinstance(other, (int, float)):
             return self.value > other
@@ -603,8 +605,8 @@ class UnitValue:
     
     def __ge__(self, other) -> bool:
         if isinstance(other, UnitValue):
-            a = self.__cpy().convert_base_metric()
-            b = other.__cpy().convert_base_metric()
+            a = self.copy().convert_base_metric()
+            b = other.copy().convert_base_metric()
             return a.value >= b.value
         elif isinstance(other, (int, float)):
             return self.value >= other
@@ -641,7 +643,7 @@ class UnitValue:
                 for ind, element in enumerate(inputs[0]):
                     inputs[0][ind] = ufunc(element, inputs[1], **kwargs)
                 return inputs[0]
-            elif isinstance(inputs[1], np.ndarray):
+            elif len(inputs) > 1 and isinstance(inputs[1], np.ndarray):
                 inputs = [inputs[0], inputs[1]]
                 for ind, element in enumerate(inputs[1]):
                     inputs[1][ind] = ufunc(inputs[0], element, **kwargs)
@@ -657,10 +659,16 @@ class UnitValue:
                     return inputs[0] * inputs[1]
                 elif ufunc == np.divide:
                     return inputs[0] / inputs[1]
+                elif ufunc == np.sqrt:
+                    return inputs[0] ** 0.5
                 elif ufunc == np.power:
                     return inputs[0] ** inputs[1]
                 elif ufunc == np.mod:
                     return inputs[0] % inputs[1]
+                elif ufunc == np.log10:
+                    return np.log10(inputs[0].value)
+                else:
+                    return NotImplemented
     
     def __array_function__(self, func, types, *args, **kwargs):
         if func is np.concatenate:
@@ -703,7 +711,7 @@ class UnitValue:
         else:
             raise Exception(f"Unit {unit} invalid: Unit must be {list(UnitValue.UNITS[self.__system][self.__dimension].keys())} for {self.__system} {self.__dimension}")
 
-    def __cpy(self)  -> 'UnitValue':
+    def copy(self)  -> 'UnitValue':
         return UnitValue(self.__system, self.__dimension, self.__unit, self.value)
     
     def __temperature_handler(self, old_unit: str, new_unit: str): # add Rankine
@@ -839,4 +847,4 @@ class UnitValue:
     @property
     def get_system(self) -> str:
         return self.__system
-    
+
