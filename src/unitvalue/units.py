@@ -2,11 +2,105 @@
 This module allows you to easly store numbers with units and easily convert the units and value of the numbers.
 The two supported systems currently are Imperial and Metric. 
 Typically used units are supported and more can be added upon request or in your instance.
+
+AUTHOR: Brody Howard
+
 '''
 import warnings
 import numpy as np
 
-class UnitValue: # add specific heat
+
+class _gauge_pressure():
+    '''
+    This class is used for specifc units which can have guage versus absolute values and facilatest the conversion of these values to absolute or back to gauge. 
+    Mainly useful for pressure. Do not use outside of this file 
+    '''
+    def __init__(self, unit_conversion_to_SI: float|int, conv_to_absolute: float|int) -> None:
+        '''
+        Args:
+        unit_conversion_to_SI (float|int): value to multiply the non gauge unit value by to convert it to the standard SI unit.
+        conv_to_absolute (float|int): value to add to get from gauge to absolute value, note this value must be negative if you subtract to convert to absolute from gauge
+        '''
+        self.__to_SI = unit_conversion_to_SI
+        self.__to_ABSOLUTE = conv_to_absolute
+    
+    def __mul__(self, m) -> int|float:
+        '''
+        Used in unit class to convert the unit to SI. Thus converts the guage value to absolute and then SI base unit.
+
+        Args:
+            d : the current value of the gauge unit.
+
+        Returns:
+            float|int : The base SI absolute value of the gauge value
+        '''
+        absolute_value = m + self.__to_ABSOLUTE
+        return absolute_value * self.__to_SI
+    
+    __rmul__ = __mul__
+
+    def __truediv__(self, d):
+        '''
+        Used in unit class to convert to the gauge unit. Thus converts the absolute base SI value to the gauge unit value.
+
+        Args:
+            d : the current value of theabsolute SI unit.
+
+        Returns:
+            float|int : The base SI absolute value of the gauge value
+        '''
+        new_unit_value = d / self.__to_SI
+        return new_unit_value - self.__to_ABSOLUTE
+    
+    __rtruediv__ = __truediv__
+
+
+class metric_temperature():
+    def __init__(self, unit_conversion_to_SI) -> None:
+        self.__to_SI = unit_conversion_to_SI
+    
+    def __mul__(self, m) -> int|float:
+        return m + self.__to_SI
+    
+    __rmul__ = __mul__
+
+    def __truediv__(self, d):
+        return d - self.__to_SI
+    
+    __rtruediv__ = __truediv__
+
+class farenheit():
+    def __init__(self) -> None:
+        pass
+  
+    def __mul__(self, m) -> int|float:
+        kelvin = ((m - 32) * (5/9)) + 273.15
+        return kelvin
+    
+    __rmul__ = __mul__
+
+    def __truediv__(self, d):
+        val = ((d - 273.15) / (5/9)) + 32
+        return val
+    
+    __rtruediv__ = __truediv__
+
+class rankine():
+    def __init__(self) -> None:
+        pass
+    
+    def __mul__(self, m) -> int|float:
+        return m *(5/9)
+    
+    __rmul__ = __mul__
+
+    def __truediv__(self, d):
+        return d * 1.8
+    
+    __rtruediv__ = __truediv__
+
+
+class UnitValue: 
     """
     Represents a value with dimension/units.
 
@@ -15,16 +109,16 @@ class UnitValue: # add specific heat
         __dimension (str): The dimension of the unit (e.g., LENGTH, MASS).
         __unit (str): The unit of the value (e.g., m, kg).
         value (float): The numerical value.
-    """
+    """ 
     UNITS = {"IMPERIAL": {
                            "DISTANCE": {"in": 0.0254, "mi": 1609.34, "yd": 0.9144, "ft": 0.3048}, 
-                           "PRESSURE": {"psi": 6894.76, "psf": 47.8803}, 
+                           "PRESSURE": {"psi": 6894.76, "psig": _gauge_pressure(6894.76, 14.696), "psf": 47.8803}, 
                            "MASS": {"lb": 0.453592, "ton": 907.1847, "slug": 14.59390, "st": 6.35029, "oz": 0.0283495}, 
                            "VELOCITY": {"ft/s": 0.3048, "mi/s": 1609.34, "mph": 0.44704, "in/s": 0.0254}, 
                            "DENSITY": {"lb/in^3": 27679.9, "lb/ft^3": 16.0185, "lb/yd^3": 0.593276},
                            "VOLUME": {"gal": 0.00378541, "yd^3": 0.764555, "ft^3": 0.0283168, "in^3": 0.0000163871}, 
                            "AREA": {"in^2": 0.00064516, "mi^2": 2590000, "yd^2": 0.836127, "ft^2": 0.092903},
-                           "TEMPERATURE": {"f": None, "R":None},
+                           "TEMPERATURE": {"f": farenheit(), "R": rankine()},
                            "MASS FLOW RATE": {"lb/s": 0.453592, "ton/s": 907.1847, "st/s": 6.35029, "oz": 0.0283495, "lb/min": 0.00755987},
                            "ENERGY": {"BTU": 1055.05585, "ftlb": 1.35582, "kcal": 4184, "cal": 4.184},
                            "TIME": {"s": 1, "h": 3600, "min": 60, "ms": 0.001},
@@ -35,21 +129,21 @@ class UnitValue: # add specific heat
                            "ENERGY PER UNIT MASS": {"ft^2/s^2": 0.09290304}, 
                            "MASS PER UNIT LENGTH": {"lb/ft": 1.48816, "oz/in": 1.11612},
                            "MASS PER AREA": {"lb/ft^2": 4.88243},
-                           "VOLUMETRIC FLOW RATE": {"ft^3/s": 0.0283168, "gal/s": 0.00378541, "ft^3/min": 0.000471947},
+                           "VOLUMETRIC FLOW RATE": {"ft^3/s": 0.0283168, "gal/s": 0.00378541, "ft^3/min": 0.000471947, "SCFM": None},
                            "DYNAMIC VISCOCITY": {"lb/fts": 1.488163943568},
                            "KINEMATIC VISCOCITY": {"ft^2/s": 0.092903},
                            "MASS FLUX": {"lb/ft^2s": 4.88243},
-                           "SPECIFIC HEAT": {"BTU/lbf": 4186.8000000087}
+                           "GAS CONSTANTS": {"BTU/lbf": 4186.8000000087}
                          }, 
              "METRIC": {
                          "DISTANCE": {"m": 1, "km": 1000, "cm": 0.01, "mm": 0.001}, 
-                         "PRESSURE": {"kg/ms^2": 1, "MPa": 1000000, "bar": 100000, "kPa": 1000, "hPa": 100, "Pa": 1}, 
+                         "PRESSURE": {"kg/ms^2": 1, "MPa": 1000000, "atm": 101325, "bar": 100000, "kPa": 1000, "hPa": 100, "Pa": 1}, 
                          "MASS": {"kg": 1, "tonne": 1000, "g": 0.001}, 
                          "VELOCITY": {"m/s": 1, "km/s": 1000, "km/h": 0.277778, "cm/s": 0.01, "mm/s": 0.001}, 
                          "DENSITY": {"kg/m^3": 1, "t/m^3": 1000, "g/m^3": 0.001},
                          "VOLUME": {"m^3": 1, "L": 0.001, "cm^3": 0.000001, "mL": 0.000001, "mm^3": 0.000000001},
                          "AREA": {"m^2": 1, "km^2": 1000000, "cm^2": 0.0001, "mm^2": 0.000001},
-                         "TEMPERATURE": {"K": None, "c": None}, 
+                         "TEMPERATURE": {"K": 1, "c": metric_temperature(273.15)}, 
                          "MASS FLOW RATE": {"kg/s": 1, "t/s": 1000, "kg/min": 0.0166667, "g/s": 0.001},
                          "ENERGY": {"kgm^2/s^2": 1, "MJ": 1000000, "kJ": 1000, "Nm": 1, "J": 1, "eV": 1.602177e-19},
                          "TIME": {"s": 1, "h": 3600, "min": 60, "ms": 0.001},
@@ -60,20 +154,21 @@ class UnitValue: # add specific heat
                          "ENERGY PER UNIT MASS": {"m^2/s^2": 1},
                          "MASS PER LENGTH": {"kg/m": 1, "kg/cm": 100, "g/cm": 0.1},
                          "MASS PER AREA": {"kg/m^2": 1, "g/cm^2": 10},
-                         "VOLUMETRIC FLOW RATE": {"m^3/s": 1, "cm^3/s": 0.000001},
+                         "VOLUMETRIC FLOW RATE": {"m^3/s": 1, "cm^3/s": 0.000001, "L/min": 0.001/60, "SLPM": None},
                          "DYNAMIC VISCOCITY": {"kg/ms": 1, "g/cms":0.1},
                          "KINEMATIC VISCOCITY": {"m^2/s": 1, "cm^2/s": 0.0001},
                          "MASS FLUX": {"kg/m^2s": 1},
-                         "SPECIFIC HEAT": {"m^2/s^2K": 1, "J/kgK": 1, "J/kgc": 1}
+                         "GAS CONSTANTS": {"m^2/s^2K": 1, "J/kgK": 1, "J/kgc": 1}, 
+                         "MOLECULAR COUNT": {'Mol': 1, "kMol": 1000}
                         }
             }
     
-    SPELLING_MAP = {'mtr': 'm', 'meters': 'm', 'mtr.': 'm', 'metres': 'm', 'metre': 'm', 'm ': 'm', 'meter': 'm', 'kilometer': 'km', 'kilometre': 'km', 'kilo meter': 'km', 'k meter': 'km', 'klometer': 'km', 'km ': 'km', 'kmeter': 'km', 'kmtr': 'km', 'centemeter': 'cm', 'centimetre': 'cm', 'cn': 'cm', 'c meter': 'cm', 'cm ': 'cm', 'centi meter': 'cm', 'centimeter': 'cm', 'cmeter': 'cm', 'cmtr': 'cm', 'mmeter': 'mm', 'millimeter': 'mm', 'milimeter': 'mm', 'milli meter': 'mm', 'millimetre': 'mm', 'm meter': 'mm', 'mn': 'mm', 'mmtr': 'mm', 'mm ': 'mm', 'g ': 'g', 'gramme': 'g', 'grm': 'g', 'gms': 'g', 'gram': 'g', 'gm': 'g', 'gramm': 'g', 'gram ': 'g', 'kilograms': 'kg', 'k gram': 'kg', 'kilogramme': 'kg', 'kilogram ': 'kg', 'kilogramme ': 'kg', 'kilogrammes': 'kg', 'kg ': 'kg', 'kilogram': 'kg', 'kilo gram': 'kg', 'kgrm': 'kg', 'liters': 'L', 'l': 'L', 'litres': 'L', 'ltrs': 'L', 'liter': 'L', 'litre ': 'L', 'litre': 'L', 'liters ': 'L', 'liter ': 'L', 'litter': 'L', 'ltr': 'L', 'ml': 'mL', 'milliliter': 'mL', 'mlitres': 'mL', 'millilitre': 'mL', 'milli litre': 'mL', 'mliters': 'mL', 'milli liter': 'mL', 'mltr': 'mL', 'sec': 's', 'seconds': 's', 'sedonds': 's', 'sconds': 's', 'second': 's', 'secs': 's', 'secnd': 's', 'minute': 'min', 'minuts': 'min', 'mins': 'min', 'minutes': 'min', 'min': 'min', 'minut': 'min', 'hours': 'h', 'hr': 'h', 'howr': 'h', 'houer': 'h', 'hour': 'h', 'hou': 'h', 'hrs': 'h', 'square meters': 'm^2', 'square meter': 'm^2', 'sqr meter': 'm^2', 'square metre': 'm^2', 'sq meter': 'm^2', 'sqmetre': 'm^2', 'sq metres': 'm^2', 'sqm': 'm^2', 'cube meter': 'm^3', 'cu meter': 'm^3', 'cbm': 'm^3', 'cubic meters': 'm^3', 'cubic metre': 'm^3', 'cubic meter': 'm^3', 'cu m': 'm^3', 'C': 'c','degree centigrade': 'c', 'degree celsius': 'c', 'celcius': 'c', 'deg celsius': 'c', 'celsius degree': 'c', 'celsus': 'c', 'celsius': 'c', 'deg c': 'c', 'fahrenheit degree': 'f', 'deg f': 'f', 'deg fahrenheit': 'f', 'fahrenhiet': 'f', 'degree fahrenheit': 'f', 'farhenheit': 'f', 'force': 'kgm/s^2', 'Newton': 'kgm/s^2', 'newtn': 'kgm/s^2', 'nwton': 'kgm/s^2', 'nwt': 'kgm/s^2', 'newton': 'kgm/s^2', 'joule': 'kgm^2/s^2', 'energy': 'kgm^2/s^2', 'juole': 'kgm^2/s^2', 'jl': 'kgm^2/s^2', 'joules': 'kgm^2/s^2', 'juul': 'kgm^2/s^2', 'inck': 'in', 'inche': 'in', 'inch': 'in', 'inc': 'in', 'inch ': 'in', 'inchh': 'in', 'foot': 'ft', 'foott': 'ft', 'fot': 'ft', 'foor': 'ft', 'foot ': 'ft', 'feet': 'ft', 'yardd': 'yd', 'yad': 'yd', 'yarrd': 'yd', 'yard ': 'yd', 'yard': 'yd', 'mille': 'mi', 'mile ': 'mi', 'milee': 'mi', 'mil': 'mi', 'mile': 'mi', 'pounds': 'lb', 'pounnd': 'lb', 'pound ': 'lb', 'pound': 'lb', 'lbs': 'lb', 'poundd': 'lb', 'galln': 'gal', 'gllon': 'gal', 'gallon': 'gal', 'galllon': 'gal', 'gallon ': 'gal', 'ounze': 'oz', 'ouncce': 'oz', 'ounce ': 'oz', 'ozs': 'oz', 'ounce': 'oz', 'ounc': 'oz', 'ounc ': 'oz', 'stn': 'st', 'stone ': 'st', 'sts': 'st', 'stone': 'st', 'st ': 'st', 'ft2': 'ft^2', 'square foot': 'ft^2', 'sqft': 'ft^2', 'square feet': 'ft^2', 'sq foot': 'ft^2', 'ft3': 'ft^3', 'cft': 'ft^3', 'cubic foot': 'ft^3', 'cu ft': 'ft^3', 'cubic feet': 'ft^3'}
+    SPELLING_MAP = {'mtr': 'm', 'meters': 'm', 'mtr.': 'm', 'metres': 'm', 'metre': 'm', 'm ': 'm', 'meter': 'm', 'kilometer': 'km', 'kilometre': 'km', 'kilo meter': 'km', 'k meter': 'km', 'klometer': 'km', 'km ': 'km', 'kmeter': 'km', 'kmtr': 'km', 'centemeter': 'cm', 'centimetre': 'cm', 'cn': 'cm', 'c meter': 'cm', 'cm ': 'cm', 'centi meter': 'cm', 'centimeter': 'cm', 'cmeter': 'cm', 'cmtr': 'cm', 'mmeter': 'mm', 'millimeter': 'mm', 'milimeter': 'mm', 'milli meter': 'mm', 'millimetre': 'mm', 'm meter': 'mm', 'mn': 'mm', 'mmtr': 'mm', 'mm ': 'mm', 'g ': 'g', 'gramme': 'g', 'grm': 'g', 'gms': 'g', 'gram': 'g', 'gm': 'g', 'gramm': 'g', 'gram ': 'g', 'kilograms': 'kg', 'k gram': 'kg', 'kilogramme': 'kg', 'kilogram ': 'kg', 'kilogramme ': 'kg', 'kilogrammes': 'kg', 'kg ': 'kg', 'kilogram': 'kg', 'kilo gram': 'kg', 'kgrm': 'kg', 'liters': 'L', 'l': 'L', 'litres': 'L', 'ltrs': 'L', 'liter': 'L', 'litre ': 'L', 'litre': 'L', 'liters ': 'L', 'liter ': 'L', 'litter': 'L', 'ltr': 'L', 'ml': 'mL', 'milliliter': 'mL', 'mlitres': 'mL', 'millilitre': 'mL', 'milli litre': 'mL', 'mliters': 'mL', 'milli liter': 'mL', 'mltr': 'mL', 'sec': 's', 'seconds': 's', 'sedonds': 's', 'sconds': 's', 'second': 's', 'secs': 's', 'secnd': 's', 'minute': 'min', 'minuts': 'min', 'mins': 'min', 'minutes': 'min', 'min': 'min', 'minut': 'min', 'hours': 'h', 'hr': 'h', 'howr': 'h', 'houer': 'h', 'hour': 'h', 'hou': 'h', 'hrs': 'h', 'square meters': 'm^2', 'square meter': 'm^2', 'sqr meter': 'm^2', 'square metre': 'm^2', 'sq meter': 'm^2', 'sqmetre': 'm^2', 'sq metres': 'm^2', 'sqm': 'm^2', 'cube meter': 'm^3', 'cu meter': 'm^3', 'cbm': 'm^3', 'cubic meters': 'm^3', 'cubic metre': 'm^3', 'cubic meter': 'm^3', 'cu m': 'm^3', 'C': 'c','degree centigrade': 'c', 'degree celsius': 'c', 'celcius': 'c', 'deg celsius': 'c', 'celsius degree': 'c', 'celsus': 'c', 'celsius': 'c', 'deg c': 'c', 'fahrenheit degree': 'f', 'deg f': 'f', 'deg fahrenheit': 'f', 'fahrenhiet': 'f', 'degree fahrenheit': 'f', 'farhenheit': 'f', 'force': 'kgm/s^2', 'Newton': 'kgm/s^2', 'newtn': 'kgm/s^2', 'nwton': 'kgm/s^2', 'nwt': 'kgm/s^2', 'newton': 'kgm/s^2', 'joule': 'kgm^2/s^2', 'energy': 'kgm^2/s^2', 'juole': 'kgm^2/s^2', 'jl': 'kgm^2/s^2', 'joules': 'kgm^2/s^2', 'juul': 'kgm^2/s^2', 'inck': 'in', 'inche': 'in', 'inch': 'in', 'inc': 'in', 'inch ': 'in', 'inchh': 'in', 'foot': 'ft', 'foott': 'ft', 'fot': 'ft', 'foor': 'ft', 'foot ': 'ft', 'feet': 'ft', 'yardd': 'yd', 'yad': 'yd', 'yarrd': 'yd', 'yard ': 'yd', 'yard': 'yd', 'mille': 'mi', 'mile ': 'mi', 'milee': 'mi', 'mil': 'mi', 'mile': 'mi', 'pounds': 'lb', 'pounnd': 'lb', 'pound ': 'lb', 'pound': 'lb', 'lbs': 'lb', 'poundd': 'lb', 'galln': 'gal', 'gllon': 'gal', 'gallon': 'gal', 'galllon': 'gal', 'gallon ': 'gal', 'ounze': 'oz', 'ouncce': 'oz', 'ounce ': 'oz', 'ozs': 'oz', 'ounce': 'oz', 'ounc': 'oz', 'ounc ': 'oz', 'stn': 'st', 'stone ': 'st', 'sts': 'st', 'stone': 'st', 'st ': 'st', 'ft2': 'ft^2', 'square foot': 'ft^2', 'sqft': 'ft^2', 'square feet': 'ft^2', 'sq foot': 'ft^2', 'ft3': 'ft^3', 'cft': 'ft^3', 'cubic foot': 'ft^3', 'cu ft': 'ft^3', 'cubic feet': 'ft^3', 'mol': 'Mol', 'moles': 'Mol', 'mols': 'Mol', 'Moles': 'Mol', 'Mols': 'Mol'}
     
     @classmethod
     def add_custom_unit(cls, system: str, dimension:str, unit:str, conversion_factor: float) -> None:
         """
-        Add your own units to the package instance whihc you can then use in conversion and arithmatic. Note there is a small chance new SI/Metric units will mess with unit conversion during arithmatic. 
+        Add your own units to the package instance which you can then use in conversion and arithmatic. Note there is a small chance new SI/Metric units will mess with unit conversion during arithmatic. 
 
         Args:
             system (str): The measurement system ('IMPERIAL' or 'METRIC'). 
@@ -141,7 +236,7 @@ class UnitValue: # add specific heat
     @classmethod
     def create_unit(cls, unit: str, value: float=0) -> 'UnitValue':
         """
-        Create a UnitValue object based on the unit and value. Will also account for speeling mistakes/alternate names of units.
+        Create a UnitValue object based on the unit and value. Will also account for spelling mistakes/alternate names of units.
 
         Args:
             unit (str): The unit of the value.
@@ -184,7 +279,7 @@ class UnitValue: # add specific heat
             raise ValueError("First element of string could not be converted to number, ensure string of the form e.g., '10 kg'")
     
     @classmethod
-    def from_dict(cls, data: dict) -> 'UnitValue':
+    def unit_from_dict(cls, data: dict) -> 'UnitValue':
         """
         Create a UnitValue object from a dictionary.
         
@@ -262,7 +357,10 @@ class UnitValue: # add specific heat
                 continue
             elif unit_str[i] == "k":
                 key = unit_str[i:i+2]
-                i += 1      
+                i += 1 
+            elif unit_str[i] == "M":
+                key = unit_str[i:i+3]
+                i += 2     
             else:
                 key = unit_str[i]
 
@@ -301,6 +399,13 @@ class UnitValue: # add specific heat
             units = {}
             self.__process_unit(self.__unit, units, 1)
             self.__process_unit(m.__unit, units, 1)
+
+            empty_units = []
+            for unit, count in units.items():
+                if count == 0:
+                    empty_units.append(unit)
+            for unit in empty_units:
+                units.pop(unit)
             
             for dimension, units_dict in UnitValue.UNITS["METRIC"].items():
                     temp = {}
@@ -347,6 +452,13 @@ class UnitValue: # add specific heat
             self.__process_unit(self.__unit, units, 1)
             self.__process_unit(d.__unit, units, -1)
 
+            empty_units = []
+            for unit, count in units.items():
+                if count == 0:
+                    empty_units.append(unit)
+            for unit in empty_units:
+                units.pop(unit)
+
             for dimension, units_dict in UnitValue.UNITS["METRIC"].items():
                     temp = {}
                     self.__process_unit(list(units_dict)[0], temp, 1)
@@ -388,6 +500,13 @@ class UnitValue: # add specific heat
             units = {}
             self.__process_unit(self.__unit, units, -1)
             self.__process_unit(d.__unit, units, 1)
+
+            empty_units = []
+            for unit, count in units.items():
+                if count == 0:
+                    empty_units.append(unit)
+            for unit in empty_units:
+                units.pop(unit)
 
             for dimension, units_dict in UnitValue.UNITS["METRIC"].items():
                     temp = {}
@@ -446,6 +565,8 @@ class UnitValue: # add specific heat
         """
         Raises UnitValue object to the power of a float or interger.
         """
+        if self.value < 0 and p < 1.0 and not p < -1:
+            raise ValueError("Trying to take root of a a negative number")
         if isinstance(p, (int, float)):
             if p == 1:
                 return self
@@ -620,10 +741,10 @@ class UnitValue: # add specific heat
     
     def __round__(self, ndigits: int=0)  -> 'UnitValue':
         """
-        Rounds UnitValue to ndigts returns rounded Unitvale
+        Returns Rounded UnitValue to ndigts 
         """
-        self.value = round(self.value, ndigits)
-        return self
+        value = round(self.value, ndigits)
+        return UnitValue(self.__system, self.__dimension, self.__unit, value)
     
     def __repr__(self) -> str:
         return f"{self.value} {self.__unit}"
@@ -674,7 +795,7 @@ class UnitValue: # add specific heat
         if func is np.concatenate:
             unit_cache = []
             for arr in args[0]:
-                unit_cache += [item.get_unit if isinstance(item, UnitValue) else None for item in arr]
+                unit_cache += [item.unit if isinstance(item, UnitValue) else None for item in arr]
                 for i in range(len(arr)):
                     arr[i] = arr[i].value if isinstance(arr[i], UnitValue) else arr[i]
             new_array = np.concatenate(args[0], **kwargs)
@@ -710,58 +831,8 @@ class UnitValue: # add specific heat
             self.__unit = unit
         else:
             raise Exception(f"Unit {unit} invalid: Unit must be {list(UnitValue.UNITS[self.__system][self.__dimension].keys())} for {self.__system} {self.__dimension}")
-
-    def copy(self)  -> 'UnitValue':
-        return UnitValue(self.__system, self.__dimension, self.__unit, self.value)
     
-    def __temperature_handler(self, old_unit: str, new_unit: str): # add Rankine
-        if new_unit == "K":
-            if old_unit == "c":
-                self.value += 273.15
-            elif old_unit == "f":
-                self.value = (self.value - 32) * (5/9) + 273.15
-            elif old_unit == "R":
-                self.value *= 5/9
-        elif new_unit == "c":
-            if old_unit == "K":
-                self.value -= 273.15
-            elif old_unit == "f":
-                self.value = (self.value - 32) * (5/9)
-            elif old_unit == "R":
-                self.value = (self.value - 491.67) * (5/9)
-        elif new_unit == "f":
-            if old_unit == "K":
-                self.value = ((self.value -273.15) / (5/9)) + 32
-            elif old_unit == "c":
-                self.value = (self.value / (5/9)) + 32 
-            elif old_unit == "R":
-                self.value -= 459.67
-        elif new_unit == "R":
-            if old_unit == "c":
-                self.value = self.value * (9/5) + 491.67
-            elif old_unit == "f":
-                self.value += 459.67
-            elif old_unit == "K":
-                self.value *= 1.8
-        
-    def __convert_temp(self, change_system: bool, unit: str=""):
-        if change_system:
-            self.__system = "IMPERIAL" if self.__system == "METRIC" else "METRIC"
-            if unit in UnitValue.UNITS[self.__system][self.__dimension].keys():
-                self.__temperature_handler(self.__unit, unit)
-                self.__unit = unit
-            else:
-                raise Exception(f"Unit {unit} invalid: Unit must be {list(UnitValue.UNITS[self.__system][self.__dimension].keys())} for {self.__system} {self.__dimension}")
-        elif unit:
-            if unit in UnitValue.UNITS[self.__system][self.__dimension].keys():
-                self.__temperature_handler(self.__unit, unit)
-                self.__unit = unit
-            else:
-                raise Exception(f"Unit {unit} invalid: Unit must be {list(UnitValue.UNITS[self.__system][self.__dimension].keys())} for {self.__system} {self.__dimension}")
-        else:
-            raise Exception("No conversion performed as change_system was false and unit was empty")
-
-    def convert_base_metric(self) -> 'UnitValue':
+    def convert_base_metric(self, **kwargs) -> 'UnitValue':
         """
         Convert the current value to it's base SI/Metric unit.
         
@@ -770,17 +841,74 @@ class UnitValue: # add specific heat
         """
         if self.__system is None:
             return
-        elif self.__dimension != "TEMPERATURE":
-            self.value *= UnitValue.UNITS[self.__system][self.__dimension][self.__unit] 
-            self.__system = "METRIC"
-            self.__unit = list(UnitValue.UNITS[self.__system][self.__dimension].keys())[0]
-        else:
-            self.__temperature_handler(self.__unit, "K")
-            self.__system = "METRIC"
-            self.__unit = "K"
+        
+        if self.__unit == "SCFM" or self.__unit == "SLPM":
+            try: 
+                return self.__standard_flowrate_handler("m^3/s", kwargs["temperature"], kwargs["pressure"])
+            except Exception as e:
+                raise ValueError(f"Was unable to convert flow rate to standard metric unit. You have ommited the required key word arguments (temperature and pressure) when converting from or to SLPM or SCFM. Occured Error: {e}")
+
+        self.value *= UnitValue.UNITS[self.__system][self.__dimension][self.__unit]
+        self.__system = "METRIC"
+        self.__unit = list(UnitValue.UNITS[self.__system][self.__dimension].keys())[0]
         return self
     
-    def to(self, unit:str) -> 'UnitValue':
+    def __standard_flowrate_handler(self, unit:str, temperature: 'UnitValue', pressure: 'UnitValue') -> 'UnitValue':
+        '''Handles the standard flow rate conversions which involve knwoing orher properties opf the fluid'''
+        std_temp = UnitValue("METRIC", "TEMPERATURE", "K", 273.15)
+        std_pressure = UnitValue("IMPERIAL", "PRESSURE", "psi", 14.504)
+        if self.__unit == "SLPM":
+            if unit == "SCFM":
+                self.value /= 28.316847
+                self.__dimension = "IMPERIAL"
+                self.__unit = "SCFM"
+                return self
+            
+            self.value = (self.value * (temperature/std_temp) * (std_pressure/pressure)) / 60000 # converted to base metric
+            other_system = "IMPERIAL" if self.__system == "METRIC" else "METRIC"
+            if unit in UnitValue.UNITS[self.__system][self.__dimension]:
+                self.value /= UnitValue.UNITS[self.__system][self.__dimension][unit]
+            elif unit in UnitValue.UNITS[other_system][self.__dimension]:
+                self.value /= UnitValue.UNITS[other_system][self.__dimension][unit]
+                self.__system = other_system
+            else:
+                raise TypeError(f"Cannot convert unit of dimension {self.__dimension} to {unit}")
+            self.__unit = unit
+
+        elif self.__unit == "SCFM":
+            if unit == "SLPM":
+                self.value *= 28.316847
+                self.__dimension = "METRIC"
+                self.__unit = "SLPM"
+                return self
+            
+            self.value = ((self.value*28.316847) * (temperature/std_temp) * (std_pressure/pressure)) / 60000 # converted to base metric
+            other_system = "IMPERIAL" if self.__system == "METRIC" else "METRIC"
+            if unit in UnitValue.UNITS[self.__system][self.__dimension]:
+                self.value /= UnitValue.UNITS[self.__system][self.__dimension][unit]
+            elif unit in UnitValue.UNITS[other_system][self.__dimension]:
+                self.value /= UnitValue.UNITS[other_system][self.__dimension][unit]
+                self.__system = other_system
+            else:
+                raise TypeError(f"Cannot convert unit of dimension {self.__dimension} to {unit}")
+            self.__unit = unit
+        
+        else:
+            self.value *= UnitValue.UNITS[self.__system][self.__dimension][self.__unit]
+            if unit == "SLPM":
+                self.value = (self.value * 60000) * (std_temp/temperature) * (pressure/std_pressure)
+                self.__system = "METRIC"
+                self.__unit = "SLPM"
+            
+            elif unit == "SCFM":
+                self.value = ((self.value * 60000) * (std_temp/temperature) * (pressure/std_pressure)) / 28.316847
+                self.__system = "IMPERIAL"
+                self.__unit = "SCFM"
+
+        return self
+
+    
+    def to(self, unit:str, **kwargs) -> 'UnitValue':
         """
         Convert the current value to a new unit.
 
@@ -794,23 +922,24 @@ class UnitValue: # add specific heat
             Exception: If the unit is not recognized or conversion is not possible.
         """
         u = UnitValue.SPELLING_MAP.get(unit)
-        if u: unit  = u
+        if u: unit = u
+
+        if unit == self.unit: return self
 
         cache_key = (self.__system, self.__dimension, self.__unit, unit)
         if cache_key in self._conversion_cache:
             cached_value = self._conversion_cache[cache_key]
             return UnitValue(self.__system, self.__dimension, unit, cached_value)
+        
+        if unit == "SCFM" or unit == "SLPM" or self.__unit == "SCFM" or self.__unit == "SLPM":
+            try:
+                return self.__standard_flowrate_handler(unit, kwargs["temperature"], kwargs["pressure"])
+            except Exception as e:
+                raise ValueError(f"Was unable to convert flow rate to standard metric unit. You have ommited the required key word arguments (temperature and pressure) when converting from or to SLPM or SCFM. Occured Error: {e}")
 
         other_system = "IMPERIAL" if self.__system == "METRIC" else "METRIC"
         if self.__system is None:
             raise Exception(f"Invalid unit {self.__unit}: this unit is not currently supported by the module")
-        elif self.__dimension == "TEMPERATURE":
-            if unit in UnitValue.UNITS[self.__system][self.__dimension]:
-                self.__convert_temp(False, unit)
-            elif unit in UnitValue.UNITS[other_system][self.__dimension]:
-                self.__convert_temp(True, unit) 
-            else:
-                raise TypeError(f"Cannot convert unit of dimension {self.__dimension} to {unit}")
         else:
             if unit in UnitValue.UNITS[self.__system][self.__dimension]:
                 self.__convert_unit(unit)
@@ -821,6 +950,10 @@ class UnitValue: # add specific heat
         
         self._conversion_cache[cache_key] = self.value
         return self
+    
+    def copy(self)  -> 'UnitValue':
+        '''Returns copy of the unit that can be used without changing the original unit, i.e. not a soft copy'''
+        return UnitValue(self.__system, self.__dimension, self.__unit, self.value)
 
     def to_dict(self) -> dict:
         """
@@ -837,14 +970,13 @@ class UnitValue: # add specific heat
         }
 
     @property
-    def get_unit(self) -> str:
+    def unit(self) -> str:
         return self.__unit
 
     @property
-    def get_dimension(self) -> str:
+    def dimension(self) -> str:
         return self.__dimension
 
     @property
-    def get_system(self) -> str:
+    def system(self) -> str:
         return self.__system
-
