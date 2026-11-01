@@ -612,7 +612,7 @@ class UnitValue:
                 if self.__unit != a.__unit:
                     raise TypeError(f"Cannot add unit {self.__unit} and unit {a.__unit}")
                 return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value)
-            if self.__dimension == "TEMPERATURE" and self.__unit != "K" or a.__unit != "K":
+            if self.__dimension == "TEMPERATURE" and (self.__unit != "K" or a.__unit != "K"):
                 self.convert_base_metric()
                 a.convert_base_metric()
                 return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value - 273.15)
@@ -640,7 +640,7 @@ class UnitValue:
                 if self.__unit != s.__unit:
                     raise TypeError(f"Cannot subtract unit {self.__unit} and unit {s.__unit}")
                 return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value)
-            if self.__dimension == "TEMPERATURE" and self.__unit != "K" or s.__unit != "K":
+            if self.__dimension == "TEMPERATURE" and (self.__unit != "K" or s.__unit != "K"):
                 self.convert_base_metric()
                 s.convert_base_metric()
                 return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value + 273.15)
@@ -992,5 +992,11 @@ class UnitValue:
     @property
     def system(self) -> str:
         return self.__system
+
+if __name__ == "__main__":
+    m1 = UnitValue.create_unit("kg/s", 0.4) 
+    m2 = UnitValue.create_unit("kg/s", 0.15) 
+    m3 = m1 - m2
+    print(m3)
 
 
