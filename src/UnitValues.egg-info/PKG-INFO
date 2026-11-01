@@ -1,6 +1,6 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: UnitValues
-Version: 0.1.4
+Version: 0.1.5
 Summary: A small package for using units in Python. Allows for computation with dimensioned qauntities and allows you to convert between different units. Do anything you would do with regular floats or integers in Python except now with units. Package is compatible with NumPy, SciPy + Pandas are in the works. I think you'll find this implementation more elegant then most other unit packages.
 Author-email: Brody Howard <brody.howard@mail.utoronto.ca>
 Project-URL: Homepage, https://github.com/BroRocket/unitvalue/
@@ -12,6 +12,7 @@ Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: numpy>=1.23.2
+Dynamic: license-file
 
 # UnitValues Package
 ## Introduction

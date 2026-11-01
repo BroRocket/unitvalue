@@ -612,6 +612,10 @@ class UnitValue:
                 if self.__unit != a.__unit:
                     raise TypeError(f"Cannot add unit {self.__unit} and unit {a.__unit}")
                 return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value)
+            if self.__dimension == "TEMPERATURE" and self.__unit != "K" or a.__unit != "K":
+                self.convert_base_metric()
+                a.convert_base_metric()
+                return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value - 273.15)
             self.convert_base_metric()
             a.convert_base_metric()
             return UnitValue(self.__system, self.__dimension, self.__unit, self.value + a.value)
@@ -636,6 +640,10 @@ class UnitValue:
                 if self.__unit != s.__unit:
                     raise TypeError(f"Cannot subtract unit {self.__unit} and unit {s.__unit}")
                 return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value)
+            if self.__dimension == "TEMPERATURE" and self.__unit != "K" or s.__unit != "K":
+                self.convert_base_metric()
+                s.convert_base_metric()
+                return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value + 273.15)
             self.convert_base_metric()
             s.convert_base_metric()
             return UnitValue(self.__system, self.__dimension, self.__unit, self.value - s.value)
@@ -926,10 +934,15 @@ class UnitValue:
 
         if unit == self.unit: return self
 
+        other_system = "IMPERIAL" if self.__system == "METRIC" else "METRIC"
+
         cache_key = (self.__system, self.__dimension, self.__unit, unit)
         if cache_key in self._conversion_cache:
             cached_value = self._conversion_cache[cache_key]
-            return UnitValue(self.__system, self.__dimension, unit, cached_value)
+            if unit in UnitValue.UNITS[self.__system][self.__dimension]:
+                return UnitValue(self.__system, self.__dimension, unit, cached_value)
+            else:
+                return UnitValue(other_system, self.__dimension, unit, cached_value)
         
         if unit == "SCFM" or unit == "SLPM" or self.__unit == "SCFM" or self.__unit == "SLPM":
             try:
@@ -937,7 +950,6 @@ class UnitValue:
             except Exception as e:
                 raise ValueError(f"Was unable to convert flow rate to standard metric unit. You have ommited the required key word arguments (temperature and pressure) when converting from or to SLPM or SCFM. Occured Error: {e}")
 
-        other_system = "IMPERIAL" if self.__system == "METRIC" else "METRIC"
         if self.__system is None:
             raise Exception(f"Invalid unit {self.__unit}: this unit is not currently supported by the module")
         else:
@@ -980,3 +992,5 @@ class UnitValue:
     @property
     def system(self) -> str:
         return self.__system
+
+
